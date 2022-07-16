@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>演员页</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700,800|Roboto:400,500,700" rel="stylesheet">
+    <!-- Theme CSS -->
+    <link type="text/css" href="./assets/css/theme.css" rel="stylesheet">
+<!--    <link rel="stylesheet" href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css">-->
+    <link rel="stylesheet" href="./assets/vendor/bootstrap/css/bootstrap.min.css">
+    <!-- fontawesome6 CSS -->
+    <link type="text/css" href="components/fontawesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Core -->
+    <script src="./assets/vendor/jquery/jquery.min.js"></script>
+    <script src="./assets/vendor/popper/popper.min.js"></script>
+    <script src="./assets/js/bootstrap/bootstrap.min.js"></script>
+    <script src="assets/js/jsencrypt.js"></script>
+    <script src="assets/js/crypto-js.js"></script>
+    <script src="./assets/js/myUtil.js"></script>
+    <!-- FontAwesome 6 -->
+<!--    <script src="components/fontawesome/js/all.min.js"></script>-->
+    <!-- FontAwesome 5 -->
+<!--    <script src="./assets/vendor/fontawesome/js/fontawesome-all.min.js" defer></script>-->
+    <!-- Page plugins -->
+    <script src="./assets/vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script src="./assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
+    <script src="./assets/vendor/input-mask/input-mask.min.js"></script>
+    <script src="./assets/vendor/nouislider/js/nouislider.min.js"></script>
+    <script src="./assets/vendor/textarea-autosize/textarea-autosize.min.js"></script>
+    <!-- Theme JS -->
+    <script src="./assets/js/theme.js"></script>
+
+<!--    <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js"></script>-->
+    <!--引入Vue框架-->
+    <script src="components/vue/dist/vue.js"></script>
+    <!--引入axios框架-->
+    <script src="components/axios/dist/axios.min.js"></script>
+
+</head>
+<style>
+
+</style>
+<body  >
+<main  class="main">
+    <section class="py-xl bg-cover bg-size--cover">
+        <span class="mask bg-gradient-light alpha-8"></span>
+        <div class="container d-flex align-items-center no-padding">
+            <div class="col">
+                <div class="row justify-content-center">
+                    <div class="col-lg-4">
+                        <div class="card ">
+                            <div class="card-body">
+
+                                <h4 class="heading text-center h3 pt-3 pb-3">欢迎使用<br>密码管理工具</h4>
+                                <div id="error" class="alert alert-danger d-none">
+                                    <i class="fa fa-exclamation-triangle"></i> 账号或密码错误
+                                </div>
+                                <div id="logout" class="alert alert-info d-none">
+                                    <i class="fa fa-exclamation-triangle"></i> 已经登出系统
+                                </div>
+                                <div id="register" class="alert alert-info d-none">
+                                    <i class="fa fa-exclamation-triangle"></i> 已经成功注册，请登录。
+                                </div>
+
+                                <form id="loginId" action="/login" method="post" >
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-bind:value="username" name="username"  placeholder="账号">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" name="password" placeholder="密码">
+                                    </div>
+                                    <button type="submit" class="btn btn-block bg-primary btn-lg mt-4">登录</button>
+                                </form>
+                                <div class="text-center text-muted mt-3">
+                                    没有账号，点此注册? <a href="./register.html" tabindex="-1">注册</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+<script>
+    if (location.search == "?error") {
+        $("#error").removeClass("d-none");
+    }
+    if (location.search == "?logout") {
+        $("#logout").removeClass("d-none");
+    }
+    if (location.search.startsWith("?register")) {
+        $("#register").removeClass("d-none");
+    }
+</script>
+<script>
+    // 后端提供
+    let pubKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbyahEKMfHklusgLZ9XyOvkg2S2lWyJyo1hcDF+SAY4IWS5GX+bKycga8/xvoRkBvwxTdYhfUnrzwRuCYZOkh5TFe+raLX3p2j+B7UHtxqMYnMCIJVKmtHbrgyW+NyxI9e7I78zNEw3lkqYtemc+cyHVnNKj86tu2g3Bwo59zc4QIDAQAB'
+
+    let loginApp = new Vue({
+        el: "#loginId",
+        data: {
+            username:''
+        },
+
+        created: function () {
+            let usrInfo = parsePram()
+            this.username  = usrInfo['register']
+        },
+        methods: {
+            login:function (){
+                axios.request({
+                    url: '/pwd/usr/add',
+                    method: 'post',
+                    data: getEnPwdReq(this.regReq)
+                }).then(res => {
+
+                })
+            }
+
+        }
+    })
+
+</script>
+
+</html>

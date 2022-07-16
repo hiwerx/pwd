@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>密码工具箱</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700,800|Roboto:400,500,700" rel="stylesheet">
+    <!-- Theme CSS -->
+    <link type="text/css" href="./assets/css/theme.css" rel="stylesheet">
+<!--    <link rel="stylesheet" href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css">-->
+    <link rel="stylesheet" href="./assets/vendor/bootstrap/css/bootstrap.min.css">
+    <!-- fontawesome6 CSS -->
+    <link type="text/css" href="components/fontawesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Core -->
+    <script src="./assets/vendor/jquery/jquery.min.js"></script>
+    <script src="./assets/vendor/popper/popper.min.js"></script>
+    <script src="./assets/js/bootstrap/bootstrap.min.js"></script>
+    <!-- FontAwesome 6 -->
+<!--    <script src="components/fontawesome/js/all.min.js"></script>-->
+    <!-- FontAwesome 5 -->
+<!--    <script src="./assets/vendor/fontawesome/js/fontawesome-all.min.js" defer></script>-->
+    <!-- Page plugins -->
+    <script src="./assets/vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script src="./assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
+    <script src="./assets/vendor/input-mask/input-mask.min.js"></script>
+    <script src="./assets/vendor/nouislider/js/nouislider.min.js"></script>
+    <script src="./assets/vendor/textarea-autosize/textarea-autosize.min.js"></script>
+    <!-- Theme JS -->
+    <script src="./assets/js/theme.js"></script>
+
+<!--    <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js"></script>-->
+    <!--引入Vue框架-->
+    <script src="components/vue/dist/vue.js"></script>
+    <!--引入axios框架-->
+    <script src="components/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+
+<div id="acctPwdId" class="container-fluid">
+
+
+
+    <div class="row">
+
+        <div class="col-xl-8 offset-xl-2">
+            <br>
+            <div class="page-header row">
+                <h3 class="col-6">密码管理器
+                </h3>
+                <h3 class="col-6 text-right">
+                    <a href="/logout" >退出</a>
+                    <button type="button" class="btn btn-primary btn-icon-only rounded-circle">
+                        <span class="btn-inner--icon"><i class="fa-solid fa-user"></i></span>
+                    </button>
+                </h3>
+            </div>
+
+            <!-- 按钮：用于打开模态框 -->
+
+            <hr>
+
+            <div class="form-group sticky-top">
+
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn btn-primary" title="添加账号密码"
+                                v-on:click="addAcctPwdData.resp.code=0"
+                                data-toggle="modal" data-target="#myModal" >
+                            <i class="fa-solid fa-plus-circle"></i>
+
+                            <!--                        <i class="fa-solid fa-plus-large"></i>-->
+                        </button>
+                    </div>
+                    <input type="text" class="form-control" v-model="inputValue" placeholder="搜索" aria-label="Recipient's username">
+                    <div class="input-group-append">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+<!--                组装后端返回数据-->
+            <template v-for="(ap,index) in filterBy(acctPwdList, inputValue)">
+                <div class="col-md-6">
+                <div class="card ">
+                    <div class="card-header" >
+<!--                        <span v-text="ap.companyName"></span>-->
+<!--                        <span v-bind:class="'badge rounded-pill '+acctBagClass[ap.companyType]" v-text="companyTypeName[ap.companyType]">默认</span>-->
+<!--                        <button type="button" class="btn btn-nobg"><i class="fa-solid fa-trash-can"></i></button>-->
+
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <span class="heading h5 mb-0" v-text="ap.companyName">Favorite post</span>
+                                <span v-bind:class="'badge rounded-pill '+acctBagClass[ap.companyType]" v-text="companyTypeName[ap.companyType]">默认</span>
+                            </div>
+                            <div class="col-4">
+                                <div class="card-icon-actions text-right">
+                                    <button type="button" v-on:click="delPwdGroup.companyId = ap.companyId" class="btn btn-nobg"
+                                        data-toggle="modal" data-target="#delAllPwdModal"
+                                    ><i class="fa-solid fa-trash-can"></i></button>
+<!--                                    <a href="#" class="favorite active" data-toggle="tooltip" data-original-title="Save to favorites"><i class="fas fa-star"></i></a>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <template v-for="(aVOL,index) in ap.acctVOList ">
+                        <div v-if="index == 0" class="card" >
+                            <div class="card-header" >
+                                <div class="row align-items-center">
+                                    <div class="col-6">
+                                        <h6 v-if="aVOL.productName!=null" class="heading h6 mb-0" ><i :class="aVOL.productIcon"></i> &nbsp; <span v-text="aVOL.productName"></span></h6>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card-icon-actions text-right">
+                                            <a href="#" class="favorite"
+
+                                               v-on:click="makeAddPwdDTO(ap,index)"
+                                               data-toggle="modal"
+                                               data-target="#addPwdModal"><i class="fa-solid fa-plus"></i></a>
+                                            <a href="#" class="favorite "
+                                               v-on:click="makeEditAcctDTO(aVOL)"
+                                               data-toggle="modal"
+                                               data-target="#editAcctModal"><i  class="fa-solid fa-pen-to-square"></i></a>
+                                            <a href="#" class="love "
+                                               v-on:click="delPwdGroup.acctId = aVOL.acctId"
+                                               data-toggle="modal"
+                                               data-target="#delAcctPwdModal"
+                                            ><i class="fa-solid fa-trash-can"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item" ><strong>账号：</strong><span v-text="aVOL.acctName"></span></li>
+                                    <li class="list-group-item" v-for="pVOL in aVOL.pwdVOList">
+                                        <div class="row align-items-center">
+                                            <div class="col-9">
+                                                <strong v-if="pVOL.pwdType=='4'" v-text="pVOL.authProductName+'授权登录：'"></strong>
+                                                <strong v-if="pVOL.pwdType!='4'" v-text="pwdTypeName[pVOL.pwdType]+'：'">密码：</strong>
+                                                <span v-text="rsaDe(pVOL.pwd)"></span>
+                                            </div>
+                                            <div  class="col-3">
+                                                <div class=" text-right">
+                                                <a href="#"
+                                                   v-on:click="makeEditPwdDTO(pVOL,aVOL.acctName)"
+                                                   data-toggle="modal"
+                                                   data-target="#editPwdModal"
+                                                ><i  class="fa-solid fa-pen-to-square"></i></a>
+                                                <a v-if="aVOL.pwdVOList.length>1" href="#"
+                                                   v-on:click="delPwdGroup.pwdId=pVOL.pwdId"
+                                                   data-toggle="modal"
+                                                   data-target="#delPwdModal"
+                                                ><i class="fa-solid fa-trash-can"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li v-if="aVOL.phone!=null&&aVOL.phone!=''" class="list-group-item" ><strong>绑定手机号：</strong><span v-text="aVOL.phone"></span></li>
+                                    <li v-if="aVOL.email!=null&&aVOL.email!=''" class="list-group-item" ><strong>绑定邮箱：</strong><span v-text="aVOL.email"></span></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        </template>
+
+                        <div v-if="ap.acctVOList.length>1" class="collapse" v-bind:id="'fold'+index">
+                            <template v-for="(aVOL,index) in ap.acctVOList ">
+                                <br v-if="index > 0">
+                                <div v-if="index > 0" class="card" >
+                                    <div class="card-header" >
+                                        <div class="row align-items-center">
+                                            <div class="col-6">
+                                                <h6 v-if="aVOL.productName!=null" class="heading h6 mb-0" ><i :class="aVOL.productIcon"></i> &nbsp; <span v-text="aVOL.productName"></span></h6>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="card-icon-actions text-right">
+                                                    <a href="#" class="favorite"
+
+                                                       v-on:click="makeAddPwdDTO(ap,index)"
+                                                       data-toggle="modal"
+                                                       data-target="#addPwdModal"><i class="fa-solid fa-plus"></i></a>
+                                                    <a href="#" class="favorite "
+                                                       v-on:click="makeEditAcctDTO(aVOL)"
+                                                       data-toggle="modal"
+                                                       data-target="#editAcctModal"><i  class="fa-solid fa-pen-to-square"></i></i></a>
+                                                    <a href="#" class="love "
+                                                       v-on:click="delPwdGroup.acctId = aVOL.acctId"
+                                                       data-toggle="modal"
+                                                       data-target="#delAcctPwdModal"
+                                                    ><i class="fa-solid fa-trash-can"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item" ><strong>账号：</strong><span v-text="aVOL.acctName"></span></li>
+                                            <li class="list-group-item" v-for="pVOL in aVOL.pwdVOList">
+                                                <div class="row align-items-center">
+                                                    <div class="col-9">
+                                                        <strong v-if="pVOL.pwdType=='4'" v-text="pVOL.authProductName+'授权登录：'"></strong>
+                                                        <strong v-if="pVOL.pwdType!='4'" v-text="pwdTypeName[pVOL.pwdType]+'：'">密码：</strong>
+                                                        <span v-text="rsaDe(pVOL.pwd)"></span>
+                                                    </div>
+                                                    <div  class="col-3">
+                                                        <div class="text-right">
+                                                        <a href="#"
+                                                           v-on:click="makeEditPwdDTO(pVOL,aVOL.acctName)"
+                                                           data-toggle="modal"
+                                                           data-target="#editPwdModal"
+                                                        ><i  class="fa-solid fa-pen-to-square"></i></a>
+                                                        <a v-if="aVOL.pwdVOList.length>1" href="#"
+                                                           v-on:click="delPwdGroup.pwdId=pVOL.pwdId"
+                                                           data-toggle="modal"
+                                                           data-target="#delPwdModal"
+                                                        ><i class="fa-solid fa-trash-can"></i></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li v-if="aVOL.phone!=null&&aVOL.phone!=''" class="list-group-item" ><strong>绑定手机号：</strong><span v-text="aVOL.phone"></span></li>
+                                            <li v-if="aVOL.email!=null&&aVOL.email!=''" class="list-group-item" ><strong>绑定邮箱：</strong><span v-text="aVOL.email"></span></li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </template>
+                        </div>
+
+
+                    </div>
+                    <!-- 如果有多个密码信息则显示展开按钮-->
+                    <div v-if="ap.acctVOList.length>1"  class="card">
+                        <button type="button"
+                                class="btn btn-info btn-animated btn-animated-x"
+                                data-toggle="collapse" v-bind:data-target="'#fold'+index"
+                                v-on:click="changeIcon(index)">
+                            <span class="btn-inner--hidden" v-bind:id="'moreInfo'+index">查看更多</span>
+                            <span class="btn-inner--visible" ><i class="fas fa-angle-down" v-bind:id="'moreIcon'+index"></i></span>
+                        </button>
+                    </div>
+                </div>
+                    <br>
+                </div>
+
+            </template>
+            </div>
+
+<!--删除所有密码-->
+            <div class="modal fade" id="delAllPwdModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-body">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8 text-center py-4">
+                                    <h4 class="heading h3">将删除该站点所有保存的密码，确认删除？</h4>
+                                    <div class="py-md"> </div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="delAllAcctByCompanyId()">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="delAcctPwdModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-body">
+                            <!--删除密码错误提示-->
+                            <div class="row justify-content-center">
+                                <div class="col-lg-10 text-center py-md-5">
+                                    <h3 >将删除该账号密码，确认删除？</h3>
+                                    <div class="py-md"></div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal"  v-on:click="delAcctById()">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="delPwdModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <!--删除密码错误提示-->
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8 text-center py-4">
+                                    <strong >将删除该类型密码，确认删除？</strong>
+                                    <div class="py-md"> </div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="delPwdById()">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加密码模态框 -->
+            <div class="modal fade" id="addPwdModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">添加密码</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--添加密码错误提示-->
+                            <div v-if="addPwdData.resp.code!=0" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong v-text="addPwdData.resp.msg">Holy guacamole!</strong>
+                                
+                            </div>
+                            <form >
+                                <div class="form-group ">
+                                    <input type="text" class="form-control" disabled placeholder="账户名" v-bind:value="addPwdData.req.acctName">
+                                </div>
+
+                                <div class="form-group">
+                                    <select v-bind:class="'form-control '+(reqErrCode.pwdType.indexOf(addPwdData.resp.code)>-1?'is-invalid':'')"
+                                            title="选择密码类型" v-model="addPwdData.req.pwdType" >
+                                        <option v-for="(pt,index) in addPwdData.unusedPwdType"
+                                                v-bind:value="pt" v-text="pwdTypeName[pt]">1</option>
+                                    </select>
+                                </div>
+
+                                <!-- 授权登录时显示此项 -->
+                                <div v-if="addPwdData.req.pwdType == 4" class="form-group">
+                                    <select v-bind:class="'form-control '+(reqErrCode.authProductId.indexOf(addPwdData.resp.code)>-1?'is-invalid':'')"
+                                            v-model="addPwdData.req.authProductId" title="授权方"  >
+                                        <option v-for="(ap,index) in authProductList" v-bind:value="ap.id" v-text="ap.name">1</option>
+                                    </select>
+                                </div>
+                                <!-- 默认或密码登录时显示此项, 即密码类型0，1，2，3 -->
+                                <div  class="form-group">
+                                    <input type="text" v-bind:class="'form-control '+(reqErrCode.pwd.indexOf(addPwdData.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="密码,必填,若是授权或短信邮箱填手机号或邮箱"  v-model="addPwdData.req.pwd">
+                                </div>
+
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                            <button type="button" class="btn btn-primary" v-on:click="addPwdPost()">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 修改密码模态框 -->
+            <div class="modal fade" id="editPwdModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">修改密码</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--添加密码错误提示-->
+                            <div v-if="editPwd.resp.code!=0" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong v-text="editPwd.resp.msg">Holy guacamole!</strong>
+                                
+                            </div>
+                            <form >
+                                <div class="form-group ">
+                                    <input type="text" class="form-control" disabled placeholder="账户名" v-bind:value="editPwd.checkedAcctPwd.acctName">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" class="form-control" disabled title="选择密码类型" v-bind:value="pwdTypeName[editPwd.req.pwdType]" >
+                                </div>
+                                <!-- 授权登录时显示此项 -->
+                                <div v-if="editPwd.req.pwdType == 4" class="form-group">
+                                    <select v-bind:class="'form-control '+(reqErrCode.authProductId.indexOf(editPwd.resp.code)>-1?'is-invalid':'')"
+                                            v-model="editPwd.req.authProductId" title="授权方"  >
+                                        <option v-for="(ap,index) in authProductList" v-bind:value="ap.id" v-text="ap.name">1</option>
+                                    </select>
+                                </div>
+                                <!-- 默认或密码登录时显示此项, 即密码类型0，1，2，3 -->
+                                <div  class="form-group">
+                                    <input type="text" v-bind:class="'form-control '+(reqErrCode.pwd.indexOf(editPwd.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="密码,必填,若是授权或短信邮箱填手机号或邮箱"  v-model="editPwd.req.pwd">
+                                </div>
+
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                            <button type="button" class="btn btn-primary" v-on:click="editPwdPost()">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 修改账号模态框，不支持修改密码类型 -->
+            <div class="modal fade" id="editAcctModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">修改账号信息</h5>
+                            <button type="button" class="close"  aria-label="Close" data-dismiss="modal" >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--                                修改账号错误提示-->
+                            <div v-if="editAcct.resp.code!=0" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong v-text="editAcct.resp.msg">Holy guacamole!</strong>
+                            </div>
+
+                            <form class="forms-sample" >
+
+                                <div class="form-group">
+                                    <input type="text" v-bind:class="'form-control '+(reqErrCode.acctName.indexOf(editAcct.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="账户名" v-model="editAcct.req.acctName">
+                                </div>
+
+                                <div  class="form-group">
+                                    <input type="text"  v-bind:class="'form-control '+(reqErrCode.phone.indexOf(editAcct.resp.code)>-1?'is-invalid':'')"
+                                           class="form-control"  placeholder="手机号" v-model="editAcct.req.phone">
+                                </div>
+                                <!-- 绑定email -->
+                                <div  class="form-group">
+                                    <input type="text" v-bind:class="'form-control '+(reqErrCode.email.indexOf(editAcct.resp.code)>-1?'is-invalid':'')"
+                                           class="form-control"  placeholder="绑定邮箱，非必输" v-model="editAcct.req.email">
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" >取消</button>
+                            <button type="button" class="btn btn-primary"  v-on:click="editAcctPost()">修改</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 删除密码模态框-->
+
+<!--            添加厂商模态框 -->
+            <div class="modal fade"  id="addCompanyModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">添加厂商信息</h5>
+                            <button type="button" class="close" data-dismiss="modal" v-on:click="hideModalAndClearCompanyReqData('addCompanyModal')" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--添加厂商错误提示-->
+                            <div v-if="addCompanyData.resp.code!=0" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong v-text="addCompanyData.resp.msg">Holy guacamole!</strong>
+                                
+                            </div>
+                            <form >
+
+                                <div class="form-group row">
+                                    <label for="inputCompanyName" class="col-sm-2 col-form-label">厂商名</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="inputCompanyName"
+                                           v-bind:class="'form-control '+(reqErrCode.companyName.indexOf(addCompanyData.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="厂商名" v-model="addCompanyData.req.producerName">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputCompanyType" class="col-sm-2 col-form-label">类型</label>
+                                    <div class="col-sm-10">
+                                        <select id="inputCompanyType"
+                                                v-bind:class="'form-control '+(reqErrCode.companyType.indexOf(addCompanyData.resp.code)>-1?'is-invalid':'')"
+                                                v-model="addCompanyData.req.type" title="厂商类型"  >
+                                            <option v-for="(ct,index) in companyTypeName" v-bind:value="index" v-text="ct">1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputCompanyUrl" class="col-sm-2 col-form-label">地址</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="inputCompanyUrl"
+                                               v-bind:class="'form-control '+(reqErrCode.companyUrl.indexOf(addCompanyData.resp.code)>-1?'is-invalid':'')"
+                                               placeholder="官网地址" v-model="addCompanyData.req.url">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputCompanyPhone" class="col-sm-2 col-form-label">电话</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="inputCompanyPhone"
+                                           v-bind:class="'form-control '+(reqErrCode.phone.indexOf(addCompanyData.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="联系电话" v-model="addCompanyData.req.phone">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputCompanyIcon" class="col-sm-2 col-form-label">图片</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="inputCompanyIcon"
+                                           v-bind:class="'form-control '+(reqErrCode.companyIcon.indexOf(addCompanyData.resp.code)>-1?'is-invalid':'')"
+                                           placeholder="图像" v-model="addCompanyData.req.icon">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="hideModalAndClearCompanyReqData('addCompanyModal')" >取消</button>
+                            <button type="button" class="btn btn-primary"  v-on:click="addCompany">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 添加账号密码模态框 -->
+<!--            <div class="modal fade" id="myModal">-->
+                <div class="modal fade"  id="myModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">添加账号密码信息</h5>
+                                <button type="button" class="close"  aria-label="Close" data-dismiss="modal" v-on:click="hideModalAndClearAcctPwdDTOData('myModal')">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+<!--                                添加账号密码错误提示-->
+                                <div v-if="addAcctPwdData.resp.code!=0" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong v-text="addAcctPwdData.resp.msg">Holy guacamole!</strong>
+                                </div>
+
+                                <form class="forms-sample" id="addAcctPwdForm">
+                                    <div class="row">
+                                    <div class="form-group col">
+                                        <select v-bind:class="'form-control '+(reqErrCode.companyIdType.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                                v-model="addAcctPwdData.req.companyIdType" name="companyIdType"  data-live-search="true" data-live-search-placeholder="搜索中 ..." title="选择厂商">
+                                            <option v-for="cl in companyList" v-bind:value="cl.id+'-'+cl.type" v-text="cl.name">Alerts</option>
+                                        </select>
+                                    </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-white btn-icon" data-dismiss="modal"
+                                                    v-on:click="addCompanyData.resp.code=0"
+                                                    data-toggle="modal" data-target="#addCompanyModal"
+                                            >
+<!--                                        <div class="col-lg-3 text-right ">-->
+                                            <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <select v-bind:class="'form-control '+(reqErrCode.productId.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                                title="选择密码可用的产品类型"  v-model="addAcctPwdData.req.productId" >
+                                            <option v-for="(ptl,index) in productTypeList[addAcctPwdData.req.companyIdType==null?3:addAcctPwdData.req.companyIdType.split('-')[1]]" v-bind:value="ptl.id" v-text="ptl.name">1</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" v-bind:class="'form-control '+(reqErrCode.acctName.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                               placeholder="账户名" v-model="addAcctPwdData.req.acctName">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <select v-bind:class="'form-control '+(reqErrCode.pwdType.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                                title="选择密码类型" v-model="addAcctPwdData.req.pwdType" id="pwdTypeId">
+                                            <option v-for="(pt,index) in pwdTypeIdClassifyByCompanyType[addAcctPwdData.req.companyIdType==null?3:addAcctPwdData.req.companyIdType.split('-')[1]]"
+                                                    v-bind:value="pt" v-text="pwdTypeName[pt]">1</option>
+                                        </select>
+                                    </div>
+                                    <!-- 授权登录时显示此项 -->
+                                    <div v-if="addAcctPwdData.req.pwdType == 4" class="form-group">
+                                        <select v-bind:class="'form-control '+(reqErrCode.authProductId.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                                v-model="addAcctPwdData.req.authProductId" title="授权方"  >
+                                            <option v-for="(ap,index) in authProductList" v-bind:value="ap.id" v-text="ap.name">1</option>
+                                        </select>
+                                    </div>
+                                    <!-- 默认或密码登录时显示此项, 即密码类型0，1，2，3 -->
+                                    <div class="form-group">
+                                        <input type="text" v-bind:class="'form-control '+(reqErrCode.pwd.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                               placeholder="密码,必填,若是授权或短信邮箱填手机号或邮箱" v-model="addAcctPwdData.req.pwd">
+                                    </div>
+
+                                    <!-- 短信验证码登录不显示此项，手机号已输入 -->
+                                    <div v-if="addAcctPwdData.req.pwdType != '5' " class="form-group">
+                                            <input type="text" v-bind:class="'form-control '+(reqErrCode.phone.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                                   placeholder="手机号" v-model="addAcctPwdData.req.phone">
+                                    </div>
+                                    <!-- 绑定email -->
+                                    <div v-if="addAcctPwdData.req.pwdType != '6'"  class="form-group">
+                                        <input type="text" v-bind:class="'form-control '+(reqErrCode.email.indexOf(addAcctPwdData.resp.code)>-1?'is-invalid':'')"
+                                               placeholder="绑定邮箱，非必输" v-model="addAcctPwdData.req.email">
+                                    </div>
+
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="hideModalAndClearAcctPwdDTOData('myModal')">取消</button>
+                                <button type="button" class="btn btn-primary"  v-on:click="addAcctPwd()">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div v-if="acctPwdList.length==0" class="container text-center">
+                <div class="row cols-xs-space cols-sm-space cols-md-space">
+                    <div class="col-12">
+                        <h2 class="heading h1 strong-600">
+                            欢迎体验密码管理工具
+                        </h2>
+                        <div class="row justify-content-center mt-4">
+                            <div class="col-lg-8">
+                                <p class="lead ">
+                                    你没有保存任何密码，点击左上角添加账号密码
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="assets/js/jsencrypt.js"></script>
+<script src="assets/js/crypto-js.js"></script>
+<script>
+    // 前端提供
+    let priKey = 'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAOKwWJfcTP5RpGdYKPk65fLEL+5p8kIf/Iybk2X+S76qWmjkOX4e4xDnkpVkGgykOsR95it7Gj2sjcKA004lfaeHlBu4gJBntPvbb4IPtYDt1X5UWH1jha02nKzZDN6enKvJ4iedT+Kn4EvLUVQg0hIZKaPPvlMzq1pS0cVN3DMbAgMBAAECgYAfGXBeDSQm885pOygL4S+w2Yd13uUUe0zrgWB8aqG7m6VhpIXarqQaKprqkdwdBd7mHBuatX3JHkYofAIBQ5V0RzcY5do+YlbgZPPEJ821jrJAIduhUdgizhX4gr6bscQXfDXnlpLohnGmRHItIx5JlDL9Kt1IyBNFxUZR+BpbIQJBAPrn1aMc2gbG3eap5bk+qAiIsJ8nibV7WvrLtzx2me+nUcq/rqrY/qLiQsqqVflqcaY3qE7p5H9Ztcsyl2ytLbECQQDnSqMMjxHnB7jErTTSjZY6o4l0gex9vL4VL1SFHzXlNJUu5q9frCHaRyluNBaEss3K4cVaGAI9pGr4bczcP6SLAkAUncIPIgrELckD8AfhPcW+1cR1f2EwWU9zdhO7Ux948q2k1DU88pGRvrewQWjJErb96mrY+Rz+XdezN5f7pQsxAkBa9ui/dLlWwpuxhmmC8bqG33CdCMgo/4VGsbGtFYRN2+tcYc/RcdJylZA+zm+YyvXS+A51C4I+Gh8UC6MJcGJXAkEA+MQTZJiIJ8bnnayjisWwF+t9tdVXrpsgRncCYESoIlBbbkdLkqnDzd+L7/JDtA5DTOla26tGsMvpRf3TOIHFCA=='
+    // 后端提供
+    let pubKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbyahEKMfHklusgLZ9XyOvkg2S2lWyJyo1hcDF+SAY4IWS5GX+bKycga8/xvoRkBvwxTdYhfUnrzwRuCYZOkh5TFe+raLX3p2j+B7UHtxqMYnMCIJVKmtHbrgyW+NyxI9e7I78zNEw3lkqYtemc+cyHVnNKj86tu2g3Bwo59zc4QIDAQAB'
+    // let priKeyQ = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAOKwWJfcTP5RpGdYKPk65fLEL+5p8kIf/Iybk2X+S76qWmjkOX4e4xDnkpVkGgykOsR95it7Gj2sjcKA004lfaeHlBu4gJBntPvbb4IPtYDt1X5UWH1jha02nKzZDN6enKvJ4iedT+Kn4EvLUVQg0hIZKaPPvlMzq1pS0cVN3DMbAgMBAAECgYAfGXBeDSQm885pOygL4S+w2Yd13uUUe0zrgWB8aqG7m6VhpIXarqQaKprqkdwdBd7mHBuatX3JHkYofAIBQ5V0RzcY5do+YlbgZPPEJ821jrJAIduhUdgizhX4gr6bscQXfDXnlpLohnGmRHItIx5JlDL9Kt1IyBNFxUZR+BpbIQJBAPrn1aMc2gbG3eap5bk+qAiIsJ8nibV7WvrLtzx2me+nUcq/rqrY/qLiQsqqVflqcaY3qE7p5H9Ztcsyl2ytLbECQQDnSqMMjxHnB7jErTTSjZY6o4l0gex9vL4VL1SFHzXlNJUu5q9frCHaRyluNBaEss3K4cVaGAI9pGr4bczcP6SLAkAUncIPIgrELckD8AfhPcW+1cR1f2EwWU9zdhO7Ux948q2k1DU88pGRvrewQWjJErb96mrY+Rz+XdezN5f7pQsxAkBa9ui/dLlWwpuxhmmC8bqG33CdCMgo/4VGsbGtFYRN2+tcYc/RcdJylZA+zm+YyvXS+A51C4I+Gh8UC6MJcGJXAkEA+MQTZJiIJ8bnnayjisWwF+t9tdVXrpsgRncCYESoIlBbbkdLkqnDzd+L7/JDtA5DTOla26tGsMvpRf3TOIHFCA==";
+    //
+    // let pubKeyH = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbyahEKMfHklusgLZ9XyOvkg2S2lWyJyo1hcDF+SAY4IWS5GX+bKycga8/xvoRkBvwxTdYhfUnrzwRuCYZOkh5TFe+raLX3p2j+B7UHtxqMYnMCIJVKmtHbrgyW+NyxI9e7I78zNEw3lkqYtemc+cyHVnNKj86tu2g3Bwo59zc4QIDAQAB";
+
+    let vm = new Vue({
+        el: "#acctPwdId",
+        data: {
+            inputValue:'',
+            companyTypeName:['互联网','通讯','银行','其他'],
+            // 同步数据库 pwdType字段数据。
+            pwdTypeName:['登录密码','支付密码','银行卡交易密码','ukey登录密码','授权登录','短信验证','邮箱验证'],
+            // 目前根据厂商类型4组分类，互联网，通讯，银行，其他,每组index时厂商类型，每组元素是pwdTypeName的index
+            pwdTypeIdClassifyByCompanyType:[
+                [0,1,4,5,6],
+                [0,4,5,6],
+                [0,1,2,3,5],
+                [0,4,5,6]
+                ],
+            foldFlag:0,
+            foldList:['查看更多','隐藏','fas fa-angle-down','fas fa-angle-up'],
+// 从数据库拿数据
+            companyList: [
+                {
+                    "id": 1,
+                    "name": "百度",
+                    "type": "0"
+                },
+                {
+                    "id": 2,
+                    "name": "微软",
+                    "type": "0"
+                },
+                {
+                    "id": 3,
+                    "name": "谷歌",
+                    "type": "0"
+                },
+                {
+                    "id": 4,
+                    "name": "腾讯",
+                    "type": "0"
+                }
+            ],
+            // 如果时授权登录，从此获取，与数据库同步
+            authProductList:[
+                {
+                    "id": 1,
+                    "name": "微信"
+                },
+                {
+                    "id": 2,
+                    "name": "QQ"
+                },
+                {
+                    "id": 3,
+                    "name": "支付宝"
+                },
+                {
+                    "id": 4,
+                    "name": "百度"
+                },
+                {
+                    "id": 5,
+                    "name": "新浪"
+                },
+                {
+                    "id": 6,
+                    "name": "网易"
+                }
+            ],
+            // 密码应用的产品范围,目前4组分类，互联网，通讯，银行，其他
+            productTypeList:[
+                // 互联网
+                [
+                    {
+                        "id": 1,
+                        "name": "全系",
+                        "icon": "fa-solid fa-universal-access"
+                    },
+                    {
+                        "id": 2,
+                        "name": "支付宝",
+                        "icon": "fa-brands fa-alipay"
+                    },
+                    {
+                        "id": 3,
+                        "name": "淘宝",
+                        "icon": "fa-solid fa-store"
+                    },
+                    {
+                        "id": 4,
+                        "name": "微信",
+                        "icon": "fa-brands fa-weixin"
+                    },
+                    {
+                        "id": 5,
+                        "name": "QQ",
+                        "icon": "fa-brands fa-qq"
+                    },
+                    {
+                        "id": 6,
+                        "name": "西瓜",
+                        "icon": "fa-brands fa-android"
+                    },
+                    {
+                        "id": 7,
+                        "name": "抖音",
+                        "icon": "fa-brands fa-tiktok"
+                    }],
+                // 通讯
+                [{
+                    "id": 1,
+                    "name": "全系",
+                    "icon": "fa-solid fa-universal-access"
+                }],
+                // 银行可选
+                [
+                    {
+                        "id": 8,
+                        "name": "信用卡",
+                        "icon": "fa-solid fa-credit-card"
+                    },
+                    {
+                        "id": 9,
+                        "name": "借记卡",
+                        "icon": "fa-regular fa-credit-card"
+                    },
+                    {
+                        "id": 10,
+                        "name": "银行App",
+                        "icon": "fa-brands fa-android"
+                    }],
+                // 其他可选
+                [{
+                    "id": 1,
+                    "name": "全系",
+                    "icon": "fa-solid fa-universal-access"
+                }]
+            ],
+
+            // bag样式，固定值
+            acctBagClass:[
+            'bg-primary',
+            'bg-success',
+            'bg-info',
+            'bg-warning',
+            'bg-danger'],
+
+            // 新增账户密码数据，送至后端
+            addAcctPwdData:{
+                // 请求数据
+                req:{
+                    companyIdType:null,
+                    acctName:null,
+                    pwdType:null,
+                    pwd:null,
+                    authProductId:null,
+                    phone:null,
+                    productId:null,
+                    email:null
+                },
+                // 响应数据
+                resp:{
+                    code:0,
+                    msg:'success',
+                    data:null
+                }
+            },
+            // 添加company数据
+            addCompanyData:{
+                req:{
+                    producerName:null,
+                    url:null,
+                    phone:null,
+                    type:null,
+                    icon:null
+                },
+                resp:{
+                    code:0,
+                    msg:'success',
+                    data:null
+                },
+
+            },
+            // 添加密码请求与响应数据
+            addPwdData:{
+                req:{
+                    // companyId:null,
+                    companyType:null,
+                    acctId:null,
+                    acctName:null,
+                    pwdType:null,
+                    authProductId:null,
+                    pwd:null
+                },
+                // 添加密码用，过滤掉已使用的密码类型
+                unusedPwdType:[],
+                resp:{
+                    code:0,
+                    msg:'success',
+                    data:null
+                }
+            },
+            // 保存删除密码的各类型请求id
+            delPwdGroup:{
+                companyId:null,
+                acctId:null,
+                pwdId:null
+            },
+            // 修改账号请求与响应数据
+            editAcct:{
+                req:{
+                    acctId:null,
+                    acctName:null,
+                    phone:null,
+                    email:null
+                },
+                resp:{
+                    code:0,
+                    msg:1
+                }
+            },
+            // 修改密码请求响应数据
+            editPwd:{
+                //用来前端校验与请求数据做比对
+                checkedAcctPwd:{
+                    acctName:null,
+                    pwdType:null,
+                    pwd:null,
+                    authProductId:null
+                },
+                req:{
+                    pwdId:null,
+                    pwdType:null,
+                    pwd:null,
+                    authProductId:null
+                },
+                resp:{
+                    code:0
+                }
+            },
+            // 后端错误码汇总
+            reqErrCode:{
+                companyIdType: [9004],
+                productId:[7007],
+                companyName:[8001,8002,8004],
+                companyUrl:[8005],
+                companyType:[8000],
+                companyIcon:[8007],
+                acctName:[7001,7008,7009],
+                phone:[7011,8006],
+                email:[7012,7013],
+                pwdType:[7002],
+                pwd:[4005,7000,7014],
+                authProductId:[7005]
+            },
+
+            // 接收后端返回的数据
+            acctPwdList:[
+                {
+                    "acctVOList":[
+                        {
+                            "acctId":1,
+                            "acctName":"lq_92",
+                            "phone":"17707223627",
+                            "productIcon":"fa-brands fa-weixin",
+                            "productId":4,
+                            "productName":"微信",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"9999",
+                                    "pwdId":1,
+                                    "pwdType":"0"
+                                }
+                            ]
+                        },
+                        {
+                            "acctId":2,
+                            "acctName":"1627125116",
+                            "phone":"17007228899",
+                            "productIcon":"fa-brands fa-qq",
+                            "productId":5,
+                            "productName":"QQ",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"1111",
+                                    "pwdId":2,
+                                    "pwdType":"0"
+                                }
+                            ]
+                        },
+                        {
+                            "acctId":3,
+                            "acctName":"1627125119",
+                            "phone":"17007228899",
+                            "productIcon":"fa-brands fa-qq",
+                            "productId":5,
+                            "productName":"QQ",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"1111",
+                                    "pwdId":3,
+                                    "pwdType":"0"
+                                }
+                            ]
+                        }
+                    ],
+                    "companyId":4,
+                    "companyName":"腾讯",
+                    "companyType":"0"
+                },
+                {
+                    "acctVOList":[
+                        {
+                            "acctId":4,
+                            "acctName":"hiwer@outlook.com",
+                            "phone":"13117177002",
+                            "productIcon":"fa-solid fa-universal-access",
+                            "productId":1,
+                            "productName":"全系",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"h438923",
+                                    "pwdId":4,
+                                    "pwdType":"0"
+                                }
+                            ]
+                        }
+                    ],
+                    "companyId":2,
+                    "companyName":"微软",
+                    "companyType":"0"
+                },
+                {
+                    "acctVOList":[
+                        {
+                            "acctId":8,
+                            "acctName":"6222021813006689233",
+                            "phone":"18990234533",
+                            "productIcon":"fa-regular fa-credit-card",
+                            "productId":9,
+                            "productName":"借记卡",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"J+aXTqlBTzVq4yQWvyngEl4GYxt+Z3FaSdqB1wd/LZzcnIu9b0Ol3lJ/B1I/dUV+f9aTRyZRbeYwVnlkswTpn7S9P+fq1OHAAepGq9GFZ9rmzUhFdWQcHzv9doO/BpEN7wKJMONHt2pFChzc6qRfZLd/OUTSjImyoyQyIFe0e0A=",
+                                    "pwdId":8,
+                                    "pwdType":"2"
+                                }
+                            ]
+                        },
+                        {
+                            "acctId":9,
+                            "acctName":"6222021813006689201",
+                            "phone":"18990234533",
+                            "productIcon":"fa-solid fa-credit-card",
+                            "productId":8,
+                            "productName":"信用卡",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"883575",
+                                    "pwdId":9,
+                                    "pwdType":"2"
+                                }
+                            ]
+                        },
+                        {
+                            "acctId":10,
+                            "acctName":"6222021813006689201",
+                            "phone":"18990234533",
+                            "productIcon":"fa-brands fa-android",
+                            "productId":10,
+                            "productName":"银行App",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"h5o9y221",
+                                    "pwdId":10,
+                                    "pwdType":"0"
+                                },
+                                {
+                                    "pwd":"qwe2322",
+                                    "pwdId":101,
+                                    "pwdType":"1"
+                                }
+                            ]
+                        },
+                        {
+                            "acctId":11,
+                            "acctName":"62220286886974",
+                            "phone":"18990234533",
+                            "productIcon":"fa-regular fa-credit-card",
+                            "productId":9,
+                            "productName":"借记卡",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"093423",
+                                    "pwdId":11,
+                                    "pwdType":"2"
+                                }
+                            ]
+                        }
+                    ],
+                    "companyId":8,
+                    "companyName":"工商银行",
+                    "companyType":"2"
+                },
+                {
+                    "acctVOList":[
+                        {
+                            "acctId":12,
+                            "acctName":"lq_92",
+                            "phone":"13177778888",
+                            "productIcon":"fa-solid fa-universal-access",
+                            "productId":1,
+                            "productName":"全系",
+                            "pwdVOList":[
+                                {
+                                    "authProductId":1,
+                                    "authProductName":"微信",
+                                    "pwd":"",
+                                    "pwdId":12,
+                                    "pwdType":"4"
+                                }
+                            ]
+                        }
+                    ],
+                    "companyId":16,
+                    "companyName":"京东",
+                    "companyType":"0"
+                },
+                {
+                    "acctVOList":[
+                        {
+                            "acctId":13,
+                            "acctName":"17707332331",
+                            "phone":"13177778888",
+                            "productIcon":"fa-solid fa-universal-access",
+                            "productId":1,
+                            "productName":"全系",
+                            "pwdVOList":[
+                                {
+                                    "pwd":"",
+                                    "pwdId":13,
+                                    "pwdType":"5"
+                                }
+                            ]
+                        }
+                    ],
+                    "companyId":17,
+                    "companyName":"拼多多",
+                    "companyType":"0"
+                }
+            ]
+        },
+
+        created: function () {
+            this.getAllPwd()
+            this.getCompany()
+        },
+        methods: {
+            makeEditAcctDTO(aVOL){
+                this.editAcct.resp.code=0
+                this.editAcct.req.acctId = aVOL.acctId
+                this.editAcct.req.acctName = aVOL.acctName
+                this.editAcct.req.email = aVOL.email
+                this.editAcct.req.phone = aVOL.phone
+            },
+            makeEditPwdDTO(pVOL,acctName){
+                this.editPwd.resp.code=0
+                this.editPwd.checkedAcctPwd.acctName = acctName
+                this.editPwd.req.pwdId = pVOL.pwdId
+                this.editPwd.req.pwdType = pVOL.pwdType
+                this.editPwd.req.pwd = this.rsaDe(pVOL.pwd)
+                this.editPwd.req.authProductId = pVOL.authProductId
+            },
+            // 初始化请求数据
+            makeAddPwdDTO:function(ap,index){
+                console.log(ap,index)
+                //返回响应码置为0，防止有错误显示
+                this.addPwdData.resp.code=0
+                this.addPwdData.req = {}
+                let companyType = ap.companyType
+                this.addPwdData.req.companyType = companyType
+                let acctPwdInfo = ap.acctVOList[index]
+                this.addPwdData.req.acctId= acctPwdInfo.acctId
+                this.addPwdData.req.acctName =acctPwdInfo.acctName
+
+                // 显示未使用的密码类型，已使用的不显示
+                let usefulPwdType = vm.pwdTypeIdClassifyByCompanyType[companyType]
+                console.log(usefulPwdType)
+                this.addPwdData.unusedPwdType = usefulPwdType.filter(pt=>{
+                    let flag = false;
+                    for (let pwd of acctPwdInfo.pwdVOList) {
+                        flag = flag||pt == pwd.pwdType
+                    }
+                    if(flag){return false}return true}
+                )
+                console.log(this.addPwdData.unusedPwdType)
+
+            },
+            addPwdPost:function (){
+                axios.request({
+                    url: '/pwd/acct/add/pwd',
+                    method: 'post',
+                    data: getEnPwdReq(this.addPwdData.req)
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    this.addPwdData.resp = dat
+
+                    if (dat.code==0){
+                        this.hideModal("addPwdModal")
+                        this.getAllPwd()
+                        // 清除绑定的请求数据
+                        this.addPwdData.req={}
+                    }else {
+                        // 清除绑定的请求数据
+                        this.addPwdData.req.pwdType=null
+                        this.addPwdData.req.pwd=null
+                        this.addPwdData.req.authProductId = null
+                    }
+
+                })
+            },
+            editPwdPost:function (){
+                console.log('editPwdPost:')
+                console.log(this.editPwd.req)
+                axios.request({
+                    url: '/pwd/acct/pwd/modify',
+                    method: 'post',
+                    data: getEnPwdReq(this.editPwd.req)
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    this.editPwd.resp = dat
+                    if (dat.code==0){
+                        // 隐藏模态框
+                        this.hideModal("editPwdModal")
+                        this.getAllPwd()
+                        // 清除绑定的请求数据
+                        // this.editPwd.req = {}
+                    }
+                })
+            },
+            editAcctPost:function (){
+                console.log('editAcctPost:'+this.editAcct.req)
+                console.log(this.editAcct.req)
+                axios.request({
+                    url: '/pwd/acct/acct/modify',
+                    method: 'post',
+                    data: this.editAcct.req
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    this.editAcct.resp = dat
+
+                    if (dat.code==0){
+                        // 隐藏模态框
+                        this.hideModal("editAcctModal")
+                        this.getAllPwd()
+                        // 清除绑定的请求数据
+                        //this.editAcct.req = {}
+                    }
+                })
+            },
+            getAllPwd: function(){
+                axios.get('/pwd/acct/get',{
+                    params: {}
+                }).then(res => {
+                    this.acctPwdList = res.data.data
+                    console.log(res.data.data)
+                })
+            },
+            changeIcon: function(index){
+                let moreInfoId = document.getElementById('moreInfo'+index);
+                let moreMsg = moreInfoId.innerText
+                let moreIconId = document.getElementById('moreIcon'+index);
+                let foldList = vm.foldList
+                if (moreMsg===foldList[0]){
+                    moreInfoId.innerText = foldList[1]
+                    moreIconId.setAttribute('class',foldList[3])
+                }else {
+                    moreInfoId.innerText = foldList[0]
+                    moreIconId.setAttribute('class',foldList[2])
+                }
+                console.log(moreInfoId.innerText)
+            },
+
+            addAcctPwd: function (){
+                console.log('addAcctPwd')
+                this.addAcctPwdData.resp.code =0
+                // let reqPram = this.addAcctPwdData.req;
+                // reqPram = JSON.parse(JSON.stringify(reqPram));
+                //  reqPram.pwd=rsaEn(reqPram.pwd);
+                axios.request({
+                    url: '/pwd/acct/add',
+                    method: 'post',
+                    data: getEnPwdReq(this.addAcctPwdData.req)
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    this.addAcctPwdData.resp = dat
+
+                    if (dat.code==0){
+                        this.hideModal("myModal")
+                        this.getAllPwd()
+                        // 清除绑定的请求数据
+                        this.addAcctPwdData.req = {}
+                    }
+
+
+                })
+            },
+            /**
+             *  手动隐藏模态框并清除绑定的账号密码请求数据
+             * @param idSelector 要隐藏的模态框id
+             */
+            hideModalAndClearAcctPwdDTOData(idSelector){
+            //    this.hideModal(idSelector)
+                // 清除请求数据
+                this.addAcctPwdData.req = {}
+                // 清除响应数据，防止再次添加数据时显示错误数据
+                // this.addAcctPwdData.resp.code = 0
+            },
+
+            // 根据modal模态框id手动隐藏模态框
+            hideModal(idSelector){
+                $('#'+idSelector).modal('hide')
+            },
+
+            addCompany: function (){
+                console.log('addCompany')
+                /** 数据校验
+                 * url:[8005],
+                 phone:[8006],
+                 type:[8000],
+                 icon:[8007]
+                 * @type {number}
+                 */
+                this.addCompanyData.resp.code=0
+                if (this.addCompanyData.req.producerName==null||this.addCompanyData.req.producerName==''){
+                    this.addCompanyData.resp.code=8001
+                    this.addCompanyData.resp.msg='厂商名不能为空'
+                    return
+                }
+                if (this.addCompanyData.req.producerName.length>10){
+                    this.addCompanyData.resp.code=8001
+                    this.addCompanyData.resp.msg='厂商名不能超过10个字符'
+                    return;
+                }
+
+                if (this.addCompanyData.req.type==null||this.addCompanyData.req.type===''){
+                    this.addCompanyData.resp.code=8000
+                    this.addCompanyData.resp.msg='请选择厂商类型'
+                    return
+                }
+                if (this.addCompanyData.req.url!=null&&this.addCompanyData.req.url.length>30){
+                    this.addCompanyData.resp.code=8005
+                    this.addCompanyData.resp.msg='url长度不能超多30个字符'
+                    return
+                }
+                if (this.addCompanyData.req.phone!=null&&this.addCompanyData.req.phone.length>15){
+                    this.addCompanyData.resp.code=8006
+                    this.addCompanyData.resp.msg='电话长度不能超多15个字符'
+                    return
+                }
+                if (this.addCompanyData.req.icon!=null&&this.addCompanyData.req.icon.length>20){
+                    this.addCompanyData.resp.code=8007
+                    this.addCompanyData.resp.msg='图片长度不能超多20个字符'
+                    return
+                }
+
+
+                axios.request({
+                    url: '/pwd/company/add',
+                    method: 'post',
+                    data: this.addCompanyData.req
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    this.addCompanyData.resp = dat
+
+                    if (dat.code==0){
+                        // 更新company列表
+                        this.getCompany();
+                        // 隐藏模态框
+                        this.hideModal("addCompanyModal")
+                        // 清除绑定的请求数据
+                        this.addCompanyData.req = {}
+                    }
+                })
+            },
+// 获取company id,name,type 用于页面加载；
+            getCompany: function (){
+                console.log('getCompany')
+                axios.request({
+                    url: '/pwd/company/get',
+                    method: 'get',
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    if (dat.code==0){
+                        this.companyList = dat.data
+                    }else {
+                        this.companyList = {}
+                    }
+                })
+            },
+
+            /**
+             *  手动隐藏模态框并清除绑定的添加厂商请求数据
+             * @param idSelector 要隐藏的模态框id
+             */
+            hideModalAndClearCompanyReqData(idSelector){
+               // this.hideModal(idSelector)
+                // 清除请求数据
+                this.addCompanyData.req = {}
+                // 清除响应数据，防止再次添加数据时显示错误数据
+                // this.addCompanyData.resp.code = 0
+            },
+
+            // 简单搜索
+            filterBy(acctPwdList, inputValue) {
+                // filter方法遍历整个数组
+                return acctPwdList.filter(consumer => {
+                    // 注意match不能遍里数字，true,false
+                    let b1 = consumer.companyName.match(inputValue);
+                    if (b1)return true;
+                    for (let acct of consumer.acctVOList) {
+                        if (acct.acctName.match(inputValue)||
+                            acct.productName.match(inputValue)
+                        ){
+                            return true
+                        }
+                    }
+                    return false;
+                });
+            },
+            delAllAcctByCompanyId: function (companyId) {
+                console.log(this.delPwdGroup.companyId)
+                // 发出异步请求
+                axios.request({
+                    url: '/pwd/acct/del/company/'+this.delPwdGroup.companyId,
+                    method: 'post'
+                }).then(res => {
+                    if (res.data.code==0){
+                        this.getAllPwd()
+                    }else {
+                        alert("删除失败："+res.data.msg)
+                        alert("删除成功")
+                    }
+                })
+            },
+            delAcctById: function (id) {
+                console.log(this.delPwdGroup.acctId)
+                //发出异步请求
+                axios.request({
+                    url: '/pwd/acct/del/acct/'+this.delPwdGroup.acctId,
+                    method: 'post'
+                }).then(res => {
+                    console.log(res.data.data)
+                    if (res.data.code==0){
+                        this.getAllPwd()
+                        alert("删除成功")
+                    }else {
+                        alert("删除失败："+res.data.msg)
+                    }
+                })
+            },
+            delPwdById: function () {
+                console.log(this.delPwdGroup.pwdId)
+                //发出异步请求
+                axios.request({
+                    url: '/pwd/acct/del/pwd/'+this.delPwdGroup.pwdId,
+                    method: 'post'
+                }).then(res => {
+                    console.log(res.data.data)
+                    if (res.data.code==0){
+                        this.getAllPwd()
+                        alert("删除成功")
+                    }else {
+                        alert("删除失败："+res.data.msg)
+                    }
+                })
+            },
+            rsaDe:function (enText){
+                var decrypt = new JSEncrypt();
+                decrypt.setPrivateKey(priKey);
+                return decrypt.decrypt(enText);
+            }
+        }
+    })
+
+
+
+    function updateSkill(){
+        $.ajax({
+            url:'/av/skill/update',
+            type:'post',
+            dataType:"json",
+            contentType : 'application/json;charset=utf-8',
+            data:JSON.stringify({}),
+           // traditional: true,
+            success:function (r){
+                console.log(r)
+
+            },
+            error:function (){
+                console.log('loadproducer error')
+            }
+        })
+    }
+
+    $('#addCompanyModal').on('shown.bs.modal', function () {
+        console.log('myModal hide')
+        document.getElementsByTagName('body')[0].className='modal-open'
+       // $('#myModal').modal('hide')
+    })
+    $('#addCompanyModal').on('hide.bs.modal', function () {
+        console.log('myModal show')
+        $('#myModal').modal('show')
+
+    })
+
+    $('#myModal').on('shown.bs.modal', function () {
+        console.log('shown')
+        document.getElementsByTagName('body')[0].className='modal-open'
+    })
+    $('#myModal').on('hide.bs.modal', function () {
+        let skillArr = []
+       // alert('嘿，我听说您喜欢模态框...');
+    })
+
+    function getEnPwdReq(reqObj){
+        let reqPram = JSON.parse(JSON.stringify(reqObj));
+        reqPram.pwd=rsaEn(reqPram.pwd);
+        return reqPram;
+    }
+    function rsaEn(text){
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(pubKey);
+        return encrypt.encrypt(text);
+        console.log(encrypted)
+        // Decrypt with the private key...
+
+    }
+
+
+    function base64Encode (obj) {
+        return btoa(encodeURIComponent(JSON.stringify (obj)));
+    }
+
+
+    /**
+     * 字符串转json对象
+     * @param str
+     * @returns {any}
+     */
+    function base64Decode (str) {
+        return JSON.parse(decodeURIComponent(atob(str)));
+    }
+
+    function sign(data){
+        let priKey = 'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAOKwWJfcTP5RpGdYKPk65fLEL+5p8kIf/Iybk2X+S76qWmjkOX4e4xDnkpVkGgykOsR95it7Gj2sjcKA004lfaeHlBu4gJBntPvbb4IPtYDt1X5UWH1jha02nKzZDN6enKvJ4iedT+Kn4EvLUVQg0hIZKaPPvlMzq1pS0cVN3DMbAgMBAAECgYAfGXBeDSQm885pOygL4S+w2Yd13uUUe0zrgWB8aqG7m6VhpIXarqQaKprqkdwdBd7mHBuatX3JHkYofAIBQ5V0RzcY5do+YlbgZPPEJ821jrJAIduhUdgizhX4gr6bscQXfDXnlpLohnGmRHItIx5JlDL9Kt1IyBNFxUZR+BpbIQJBAPrn1aMc2gbG3eap5bk+qAiIsJ8nibV7WvrLtzx2me+nUcq/rqrY/qLiQsqqVflqcaY3qE7p5H9Ztcsyl2ytLbECQQDnSqMMjxHnB7jErTTSjZY6o4l0gex9vL4VL1SFHzXlNJUu5q9frCHaRyluNBaEss3K4cVaGAI9pGr4bczcP6SLAkAUncIPIgrELckD8AfhPcW+1cR1f2EwWU9zdhO7Ux948q2k1DU88pGRvrewQWjJErb96mrY+Rz+XdezN5f7pQsxAkBa9ui/dLlWwpuxhmmC8bqG33CdCMgo/4VGsbGtFYRN2+tcYc/RcdJylZA+zm+YyvXS+A51C4I+Gh8UC6MJcGJXAkEA+MQTZJiIJ8bnnayjisWwF+t9tdVXrpsgRncCYESoIlBbbkdLkqnDzd+L7/JDtA5DTOla26tGsMvpRf3TOIHFCA=='
+        var sign = new JSEncrypt();
+        sign.setPrivateKey(priKey);
+        data = base64Encode(data)
+        var signature = sign.sign(data, CryptoJS.SHA256, "sha256");
+        let reqData = {};
+        reqData['data']=data
+        reqData['signature']=signature
+        return reqData
+    }
+
+    function verify(data){
+        let pubKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbyahEKMfHklusgLZ9XyOvkg2S2lWyJyo1hcDF+SAY4IWS5GX+bKycga8/xvoRkBvwxTdYhfUnrzwRuCYZOkh5TFe+raLX3p2j+B7UHtxqMYnMCIJVKmtHbrgyW+NyxI9e7I78zNEw3lkqYtemc+cyHVnNKj86tu2g3Bwo59zc4QIDAQAB'
+        let signature=data.signature
+        let verify = new JSEncrypt();
+        verify.setPublicKey(pubKey);
+        let verified = verify.verify(data.data, signature, CryptoJS.SHA256);
+        if (verified){
+            return base64Decode(data.data)
+        }else {
+            return null
+        }
+    }
+
+</script>
+
+</html>

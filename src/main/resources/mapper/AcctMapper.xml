@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lq.pwd.mapper.AcctMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.lq.pwd.model.Acct">
+        <result column="id" property="id" />
+        <result column="company_id" property="companyId" />
+        <result column="acct_type" property="acctType" />
+        <result column="acct_name" property="acctName" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email"/>
+        <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="product_url" property="productUrl" />
+        <result column="valid" property="valid" />
+        <result column="usr_id" property="usrId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <resultMap id="acctPwdMap"  type="com.lq.pwd.vo.CompanyAcctPwdVO">
+        <result column="companyId" property="companyId" />
+        <result column="companyName" property="companyName" />
+        <result column="url" property="url" />
+        <result column="companyPhone" property="companyPhone" />
+        <result column="companyType" property="companyType" />
+        <result column="companyIcon" property="companyIcon" />
+
+        <collection property="acctVOList" ofType="com.lq.pwd.vo.AcctPwdVO">
+            <result column="acct_id" property="acctId"/>
+            <result column="acct_name" property="acctName"/>
+            <result column="phone" property="phone"/>
+            <result column="email" property="email"/>
+            <result column="productName" property="productName"/>
+            <result column="productId" property="productId"/>
+            <result column="productIcon" property="productIcon"/>
+
+            <collection property="pwdVOList" ofType="com.lq.pwd.vo.PwdVO">
+                <result column="pwd_id" property="pwdId"/>
+                <result column="pwd" property="pwd"/>
+                <result column="pwd_type" property="pwdType"/>
+                <result column="auth_product_id" property="authProductId"/>
+                <result column="authProductName" property="authProductName"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getAllPwd" resultMap="acctPwdMap">
+        select c.id companyId,c.name companyName,c.url,c.phone companyPhone,c.type companyType,c.icon companyIcon,
+        pt.id productId,pt.name productName, pt.icon productIcon,
+        a.id acct_id, acct_name, a.phone,a.email,
+        p.id pwd_id,pwd,pwd_type,
+        p.auth_product_id, ap.name authProductName
+        from acct a
+        left join company c on c.id = a.company_id
+        left join product pt on pt.id = a.product_id
+        left join pwd p on a.id = p.acct_id
+        left join auth_product ap on ap.id = p.auth_product_id
+        where a.valid = '1' and a.usr_id = #{usrId} and p.valid = '1'
+        <if test="searchText!=null and searchText != ''">
+            and (product_name like #{searchText}
+                or product_url like #{searchText}
+                or acct_name like #{searchText}
+            )
+        </if>
+
+    </select>
+
+    <select id="selectBankAppPwdCount" resultType="java.lang.Integer">
+        select count(1) from acct
+         left join pwd p on acct.id = p.acct_id
+        where acct.company_id = #{companyId}
+          and acct.usr_id= #{usrId}
+          and acct.valid = '1'
+          and p.pwd_type = #{pwdType}
+          and p.valid = '1'
+    </select>
+
+    <select id="selectBankAcctIdByPwdType" resultType="java.lang.Integer">
+        select acct.id from acct
+             left join pwd p on acct.id = p.acct_id
+        where acct.company_id = #{companyId}
+          and acct.usr_id= #{usrId}
+          and acct.valid = '1'
+          and p.pwd_type in ('0','1','3','5')
+          and p.valid = '1'
+    </select>
+
+
+
+</mapper>

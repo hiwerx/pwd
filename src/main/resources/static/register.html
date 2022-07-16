@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>演员页</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700,800|Roboto:400,500,700" rel="stylesheet">
+    <!-- Theme CSS -->
+    <link type="text/css" href="./assets/css/theme.css" rel="stylesheet">
+<!--    <link rel="stylesheet" href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css">-->
+    <link rel="stylesheet" href="./assets/vendor/bootstrap/css/bootstrap.min.css">
+    <!-- fontawesome6 CSS -->
+    <link type="text/css" href="components/fontawesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Core -->
+    <script src="./assets/vendor/jquery/jquery.min.js"></script>
+    <script src="./assets/vendor/popper/popper.min.js"></script>
+    <script src="./assets/js/bootstrap/bootstrap.min.js"></script>
+    <script src="assets/js/jsencrypt.js"></script>
+    <script src="assets/js/crypto-js.js"></script>
+    <script src="./assets/js/myUtil.js"></script>
+
+    <!-- FontAwesome 6 -->
+<!--    <script src="components/fontawesome/js/all.min.js"></script>-->
+    <!-- FontAwesome 5 -->
+<!--    <script src="./assets/vendor/fontawesome/js/fontawesome-all.min.js" defer></script>-->
+    <!-- Page plugins -->
+    <script src="./assets/vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script src="./assets/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
+    <script src="./assets/vendor/input-mask/input-mask.min.js"></script>
+    <script src="./assets/vendor/nouislider/js/nouislider.min.js"></script>
+    <script src="./assets/vendor/textarea-autosize/textarea-autosize.min.js"></script>
+    <!-- Theme JS -->
+    <script src="./assets/js/theme.js"></script>
+
+<!--    <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js"></script>-->
+    <!--引入Vue框架-->
+    <script src="components/vue/dist/vue.js"></script>
+    <!--引入axios框架-->
+    <script src="components/axios/dist/axios.min.js"></script>
+
+</head>
+<style>
+
+</style>
+<body  >
+<main  class="main">
+    <section class="py-xl bg-cover bg-size--cover">
+        <span class="mask bg-gradient-light alpha-12"></span>
+        <div class="container d-flex align-items-center no-padding">
+            <div class="col">
+                <div class="row justify-content-center">
+                    <div class="col-lg-4">
+                        <div class="card ">
+                            <div id="registerId" class="card-body">
+                                <h4 class="heading text-center h3 pt-3 pb-3">欢迎注册</h4>
+                                <div v-if="errField.common.code||errField.checkPwd.code||errField.name.code||errField.pwd.code||errField.inviteCode.code||errField.doubleCheck.code" class="alert alert-danger">
+                                    <div v-if="errField.common.code" >
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        <span v-text="errField.common.msg"></span>
+                                    </div>
+                                    <div v-if="errField.name.code" >
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <span v-text="errField.name.msg"></span>
+                                </div>
+                                <div v-if="errField.pwd.code&&errField.pwd.msg!=''" >
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <span v-text="errField.pwd.msg"></span>
+                                </div>
+                                <div v-if="errField.checkPwd.code" >
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <span v-text="errField.checkPwd.msg"></span>
+                                </div>
+                                    <div v-if="errField.doubleCheck.code" >
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        <span v-text="errField.doubleCheck.msg"></span>
+                                    </div>
+                                <div v-if="errField.inviteCode.code" >
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <span v-text="errField.inviteCode.msg"></span>
+                                </div>
+                                </div>
+                                <form  v-on:submit.prevent="register()" >
+                                    <div class="form-group">
+                                        <input type="text" v-model.trim="regReq.name" class="form-control" v-bind:class="'form-control '+(errField.name.code?'is-invalid':'')" placeholder="用户名">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" v-model="regReq.pwd" v-on:change="checkPwdValid" v-bind:class="'form-control '+(errField.pwd.code||errField.doubleCheck.code?'is-invalid':'')"  placeholder="密码">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" v-model.lazy="checkPwd" v-on:change="checkPwdValid" v-bind:class="'form-control '+(errField.checkPwd.code||errField.doubleCheck.code?'is-invalid':'')" placeholder="密码确认">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="invitcode" v-model="regReq.inviteCode" class="form-control" v-bind:class="'form-control '+(errField.inviteCode.code?'is-invalid':'')" placeholder="邀请码">
+                                    </div>
+                                    <button type="submit" class="btn btn-block bg-primary btn-lg mt-4">注册</button>
+                                </form>
+                                <div class="text-center text-muted mt-3">
+                                    已有账号? <a href="./login.html" tabindex="-1">登录</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+<script>
+    let priKey = 'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAOKwWJfcTP5RpGdYKPk65fLEL+5p8kIf/Iybk2X+S76qWmjkOX4e4xDnkpVkGgykOsR95it7Gj2sjcKA004lfaeHlBu4gJBntPvbb4IPtYDt1X5UWH1jha02nKzZDN6enKvJ4iedT+Kn4EvLUVQg0hIZKaPPvlMzq1pS0cVN3DMbAgMBAAECgYAfGXBeDSQm885pOygL4S+w2Yd13uUUe0zrgWB8aqG7m6VhpIXarqQaKprqkdwdBd7mHBuatX3JHkYofAIBQ5V0RzcY5do+YlbgZPPEJ821jrJAIduhUdgizhX4gr6bscQXfDXnlpLohnGmRHItIx5JlDL9Kt1IyBNFxUZR+BpbIQJBAPrn1aMc2gbG3eap5bk+qAiIsJ8nibV7WvrLtzx2me+nUcq/rqrY/qLiQsqqVflqcaY3qE7p5H9Ztcsyl2ytLbECQQDnSqMMjxHnB7jErTTSjZY6o4l0gex9vL4VL1SFHzXlNJUu5q9frCHaRyluNBaEss3K4cVaGAI9pGr4bczcP6SLAkAUncIPIgrELckD8AfhPcW+1cR1f2EwWU9zdhO7Ux948q2k1DU88pGRvrewQWjJErb96mrY+Rz+XdezN5f7pQsxAkBa9ui/dLlWwpuxhmmC8bqG33CdCMgo/4VGsbGtFYRN2+tcYc/RcdJylZA+zm+YyvXS+A51C4I+Gh8UC6MJcGJXAkEA+MQTZJiIJ8bnnayjisWwF+t9tdVXrpsgRncCYESoIlBbbkdLkqnDzd+L7/JDtA5DTOla26tGsMvpRf3TOIHFCA=='
+    // 后端提供
+    let pubKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbyahEKMfHklusgLZ9XyOvkg2S2lWyJyo1hcDF+SAY4IWS5GX+bKycga8/xvoRkBvwxTdYhfUnrzwRuCYZOkh5TFe+raLX3p2j+B7UHtxqMYnMCIJVKmtHbrgyW+NyxI9e7I78zNEw3lkqYtemc+cyHVnNKj86tu2g3Bwo59zc4QIDAQAB'
+
+    let registerApp = new Vue({
+        el: "#registerId",
+        data: {
+
+            checkPwd:'',
+            regReq:{
+                name:'',
+                pwd:'',
+                inviteCode:''
+            },
+            errField:{
+                name:{code:0,msg:''},
+                pwd:{code:0,msg:''},
+                checkPwd:{code:0,msg:''},
+                doubleCheck:{code:0,msg:''},
+                inviteCode: {code:0,msg:''},
+                common:{code:0,msg:''}
+            }
+        },
+
+        created: function () {
+
+        },
+        methods: {
+            checkPwdValid(){
+                if(this.checkPwd!=''&&this.regReq.pwd!=''&&this.checkPwd!=this.regReq.pwd){
+                    this.errField.doubleCheck.code = 1
+                    this.errField.doubleCheck.msg = '2次输入密码不一致，请确认'
+                }else {
+                    this.errField.doubleCheck.code =  0
+                }
+
+            },
+            register: function () {
+                // code清0
+                let errField = registerApp.errField
+                for( let f in errField ){
+                    registerApp.errField[f].code=0;
+                }
+
+                let hasErr= false
+                if (this.regReq.name==''){
+                    this.errField.name.code=11
+                    this.errField.name.msg='用户名不能为空'
+                    hasErr =hasErr||true
+                }else if(this.regReq.name.length>10){
+                    this.errField.name.code=11
+                    this.errField.name.msg='用户名不超过10个字符'
+                    hasErr =hasErr||true
+                }else {
+                    this.errField.name.code=0
+                }
+                if (this.regReq.pwd==''){
+                    this.errField.pwd.code=12
+                    this.errField.pwd.msg='密码不能为空'
+                    hasErr =hasErr||true
+                }else {
+                    this.errField.pwd.code=0
+                }
+                if (this.checkPwd==''){
+                    this.errField.checkPwd.code=12
+                    this.errField.checkPwd.msg='确认密码不能为空'
+                    hasErr =hasErr||true
+                }else {
+                    this.errField.checkPwd.code=0
+                }
+                this.checkPwdValid()
+                if (this.regReq.inviteCode==''){
+                    this.errField.inviteCode.code=13
+                    this.errField.inviteCode.msg='邀请码不能为空'
+                    hasErr = hasErr||true
+                }else {
+                    this.errField.inviteCode.code=0
+                }
+                if (hasErr) return
+                axios.request({
+                    url: '/pwd/usr/add',
+                    method: 'post',
+                    data: this.regReq
+                }).then(res => {
+                    let dat = res.data
+                    console.log(dat.data)
+                    // 给响应数据赋值
+                    if (dat.data == 1&&dat.code==0) {
+                       location.href='login.html?register='+registerApp.regReq.name
+                    } else {
+                        if (dat.code == 0){
+                            let errField = dat.data
+                            for( let f in errField ){
+                                registerApp.errField[f]=errField[f];
+                            }
+                        }
+                        //
+                        if (dat.code==4006){
+                            registerApp.errField.name.msg=dat.msg
+                            registerApp.errField.name.code=dat.code
+                        }
+                        if ("4007,4008".indexOf(dat.code)!=-1){
+                            registerApp.errField.inviteCode.msg=dat.msg
+                            registerApp.errField.inviteCode.code=dat.code
+                        }
+                        if (dat.code==9999){
+                            registerApp.errField.common.msg=dat.msg
+                            registerApp.errField.common.code=dat.code
+                        }
+
+
+                    }
+
+                })
+            }
+        }
+    })
+    function getEnPwdReq(reqObj){
+        let reqPram = JSON.parse(JSON.stringify(reqObj));
+        reqPram.pwd=rsaEn(reqPram.pwd);
+        return reqPram;
+    }
+    function rsaEn(text){
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(pubKey);
+        return encrypt.encrypt(text);
+        console.log(encrypted)
+        // Decrypt with the private key...
+
+    }
+
+</script>
+
+</html>

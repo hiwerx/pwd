@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lq.pwd.mapper.OtherAcctMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.lq.pwd.model.OtherAcct">
+        <id column="id" property="id" />
+        <result column="acct_id" property="acctId" />
+        <result column="acct_name" property="acctName" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>
