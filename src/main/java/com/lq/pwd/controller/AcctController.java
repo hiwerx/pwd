@@ -18,6 +18,7 @@ import com.lq.pwd.service.impl.AcctServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
@@ -47,7 +48,8 @@ public class AcctController {
     @Autowired
     RedisTemplate<String,String> redisTemplate;
 
-    public static String priKeyH = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJvJqEQox8eSW6yAtn1fI6+SDZLaVbInKjWFwMX5IBjghZLkZf5srJyBrz/G+hGQG/DFN1iF9SevPBG4Jhk6SHlMV76totfenaP4HtQe3GoxicwIglUqa0duuDJb43LEj17sjvzM0TDeWSpi16Zz5zIdWc0qPzq27aDcHCjn3NzhAgMBAAECgYAJvJDHscTKtFsGbQT60PdqAbbXds3kVI5Oyg1CUk+vPlka1SuKu0AOiAxr8AOxFVCpu6m53qVz1X/rm5bF/N6KnUN8PbF9yBdx/BlBTwUWVxHpQKzuHNdA062ySwXIaJelGbhuk+GlDM/F8QIEwRjCd9NB84tqqZDZZZ2wKNoAAQJBAMsBRoVV+AlBHY+0OcXntsHZe6rjXQOhbjCy6g0PF77iNi6ViyUUnG8MWir8WcfYJFbEIRYEKGrG+ikXVmN6CQ0CQQDEdOAVcSg8COUvtsPUjl2tLEs0PAuKc/6PHOjDUyQfrE2oIOziuQWH/6QrW/B6NtS9Og+nZS78bndLk3YbwEYlAkB5UbPRb4UiErYV8YEtUsMXql+LywEFcG4n0GSrlT99pjb3NAvKBz1N6DXixpjpI7Tj3aZgP+/fkDZkZDwOixnpAkEAsKnBUMbfPY1qO8wIsj4L80xfnGtanXjNs3h1wCAl3e2eL9Db9M4ZMUEsKmmVCPIBwOBTb17IL+xOjsHedfojmQJAc9GCrwOoWJwYuKmwFR16EuGwFtKcBBoKtEbvEYFIpPGdoCjfT9LxZp/qLOb2Gh4Cv8ypilCJX9PpWtDvNGmooQ==";
+    @Value("${priKeyH}")
+    public String priKeyH;
 
     private String dePwd(String pwd){
         if ("false".equals(pwd)|| StrUtil.isBlank(pwd)) throw new RuntimeException(Constant.ERR_PWD_NULL);

@@ -37,8 +37,11 @@ import java.util.stream.Collectors;
 @Service
 public class AcctServiceImpl extends ServiceImpl<AcctMapper, Acct> implements IAcctService {
 
+    @Value("${pubKeyQ}")
+    String pubKeyQ;
 
-
+    @Value("${priKeyQ}")
+    String priKeyQ;
 
     @Autowired
     PwdServiceImpl pwdService;
@@ -342,7 +345,7 @@ public class AcctServiceImpl extends ServiceImpl<AcctMapper, Acct> implements IA
         if (StrUtil.isBlank(pwdName)) throw new RuntimeException(Constant.ERR_PWD_NULL);
         Pwd pwd = pwdExit(pwdId, acctPwdDTO.getUsrId());
         String dbPwdName = pwd.getPwd();
-        dbPwdName = Rsa.decodeRsa(Rsa.priKeyQ,dbPwdName);
+        dbPwdName = Rsa.decodeRsa(priKeyQ,dbPwdName);
         boolean pwdNoChange = pwdName.equals(dbPwdName);
         setDbPwd(pwd);
         if (Constant.PWD_TYPE_AUTH.equals(pwdType)){
@@ -361,10 +364,10 @@ public class AcctServiceImpl extends ServiceImpl<AcctMapper, Acct> implements IA
 
     // 入库加密
     public void setDbPwd(Pwd pwd){
-        pwd.setPwd(Rsa.encodeRsa(Rsa.pubKeyQ,pwd.getPwd()));
+        pwd.setPwd(Rsa.encodeRsa(pubKeyQ,pwd.getPwd()));
     }
     // 入库加密
     public String getDbPwd(String pwd){
-        return Rsa.encodeRsa(Rsa.pubKeyQ,pwd);
+        return Rsa.encodeRsa(pubKeyQ,pwd);
     }
 }
