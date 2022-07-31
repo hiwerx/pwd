@@ -93,7 +93,9 @@
 
                         <div class="row align-items-center">
                             <div class="col-8">
+                                <a  v-bind:href="ap.url" target="_blank">
                                 <span class="heading h5 mb-0" v-text="ap.companyName">Favorite post</span>
+                                </a>
                                 <span v-bind:class="'badge rounded-pill '+acctBagClass[ap.companyType]" v-text="companyTypeName[ap.companyType]">默认</span>
                             </div>
                             <div class="col-4">
@@ -945,7 +947,8 @@
                     ],
                     "companyId":4,
                     "companyName":"腾讯",
-                    "companyType":"0"
+                    "companyType":"0",
+                    "url":"https://www.tencent.com"
                 },
                 {
                     "acctVOList":[
