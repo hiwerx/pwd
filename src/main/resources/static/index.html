@@ -1390,9 +1390,9 @@
                 }).then(res => {
                     if (res.data.code==0){
                         this.getAllPwd()
+                        alert("删除成功")
                     }else {
                         alert("删除失败："+res.data.msg)
-                        alert("删除成功")
                     }
                 })
             },
