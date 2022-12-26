@@ -1,6 +1,7 @@
 package com.lq.pwd.controller;
 
 
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.lq.pwd.common.Check;
@@ -36,22 +37,25 @@ public class CompanyController {
     @Autowired
     RedisTemplate<String,String> redisTemplate;
     @Autowired
+    TimedCache<String, String> timedCache;
+    @Autowired
     ICompanyService companyService;
     @RequestMapping("add")
     public R add(@RequestBody @Valid CompanyDTO companyDTO, BindingResult result, @AuthenticationPrincipal LoginUserInfo userInfo){
         Check.checkDTO(result);
 
         String key = "usr:"+userInfo.getUserId()+":addCompany";
-        String value = redisTemplate.opsForValue().get(key);
+        String value = timedCache.get(key);
         if (StrUtil.isEmpty(value)) {
-            redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.SECONDS);
+            timedCache.put(key, "1");
         }else{
-            redisTemplate.opsForValue().set(key,(Integer.parseInt(value)+1)+"",10,TimeUnit.SECONDS);
+            timedCache.put(key,(Integer.parseInt(value)+1)+"");
             throw new RuntimeException(Constant.ERR_SYS_P);
         }
 
         companyDTO.setUsrId(userInfo.getUserId());
         companyService.add(companyDTO);
+        timedCache.remove(key);
         return R.ok("添加企业成功");
     }
 

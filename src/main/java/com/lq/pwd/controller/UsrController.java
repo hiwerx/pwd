@@ -1,6 +1,7 @@
 package com.lq.pwd.controller;
 
 
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.api.R;
@@ -43,10 +44,18 @@ import java.util.concurrent.TimeUnit;
 public class UsrController {
     @Value("${invite_code_use_num}")
     Integer inviteCodeMaxCount;
+    @Value("${inviteCode.usefulCodes}")
+    String inviteCodes;
     @Autowired
     UsrServiceImpl usrService;
     @Autowired
     RedisTemplate<String,String> redisTemplate;
+
+
+    @Autowired
+    TimedCache<String, String> timedCache;
+    static Map<String, String> regMap = new HashMap<>();
+
     @PostMapping("add")
     public R addUsr(@RequestBody @Valid AddUsrDTO usrDTO, BindingResult result){
         if (result.hasFieldErrors()){
@@ -66,11 +75,11 @@ public class UsrController {
 //            throw new RuntimeException(result.getFieldError().getDefaultMessage());
         }
 
-        String inviteCodes = redisTemplate.opsForValue().get("inviteCode:usefulCodes");
+//        String inviteCodes = redisTemplate.opsForValue().get("inviteCode:usefulCodes");
         log.info("缓存：{}， 请求：{}",inviteCodes,usrDTO.getInviteCode());
         if (inviteCodes==null) throw new RuntimeException(Constant.ERR_SYS);
         if (inviteCodes.indexOf(usrDTO.getInviteCode())==-1) throw new RuntimeException(Constant.ERR_INVITE_CODE_NOT_EXIT);
-        String inviteCodeInfo = redisTemplate.opsForValue().get("inviteCode:"+usrDTO.getInviteCode());
+        String inviteCodeInfo = regMap.get("inviteCode:"+usrDTO.getInviteCode());
         InviteCode inviteCodeObj;
         if (inviteCodeInfo == null){
             inviteCodeObj = new InviteCode();
@@ -85,13 +94,12 @@ public class UsrController {
 
 
         String regKey = "reg:"+usrDTO.getName();
-        String usrName = redisTemplate.opsForValue().get(regKey);
+        String usrName = timedCache.get(regKey);
         if (StrUtil.isEmpty(usrName)){
-            redisTemplate.opsForValue().set(regKey,"1",20, TimeUnit.SECONDS);
+            timedCache.put(regKey,"1",20000);
         }else {
             throw new RuntimeException(Constant.ERR_URE_EXIT);
         }
-
 
         List<Usr> usrList = usrService.lambdaQuery().eq(Usr::getName,usrDTO.getName()).list();
         if (usrList.size()>0) throw new RuntimeException(Constant.ERR_URE_EXIT);
@@ -101,7 +109,7 @@ public class UsrController {
         String encodePassword = "{bcrypt}"+encoder.encode(usrDTO.getPwd());
         usrService.save(Usr.builder().name(usrDTO.getName()).password(encodePassword).inviteCode(usrDTO.getInviteCode()).build());
         // 没有异常，将inviteCode 注册信息更新缓存
-        redisTemplate.opsForValue().set("inviteCode:"+usrDTO.getInviteCode(),JSON.toJSONString(inviteCodeObj));
+        timedCache.put("inviteCode:"+usrDTO.getInviteCode(),JSON.toJSONString(inviteCodeObj));
         return R.ok(1);
 
 

@@ -1,5 +1,7 @@
 package com.lq.pwd.common;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -32,5 +34,12 @@ public class Config {
         RedisTemplate redisTemplate = new StringRedisTemplate();
         redisTemplate.setConnectionFactory(factory);
         return redisTemplate;
+    }
+
+    @Bean
+    public TimedCache<String, String> getTimedCache(){
+        TimedCache<String, String> timedCache = CacheUtil.newTimedCache(10000);
+        timedCache.schedulePrune(5);
+        return timedCache;
     }
 }

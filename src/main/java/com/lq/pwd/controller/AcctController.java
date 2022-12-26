@@ -1,6 +1,7 @@
 package com.lq.pwd.controller;
 
 
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -48,6 +49,9 @@ public class AcctController {
     @Autowired
     RedisTemplate<String,String> redisTemplate;
 
+    @Autowired
+    TimedCache<String, String> timedCache;
+
     @Value("${priKeyH}")
     public String priKeyH;
 
@@ -59,12 +63,20 @@ public class AcctController {
     }
 
     private void moreReq(LoginUserInfo userInfo,String busName){
+//        String key = "usr:"+userInfo.getUserId()+":"+busName;
+//        String value = redisTemplate.opsForValue().get(key);
+//        if (StrUtil.isEmpty(value)) {
+//            redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.SECONDS);
+//        }else{
+//            redisTemplate.opsForValue().set(key,(Integer.parseInt(value)+1)+"",10,TimeUnit.SECONDS);
+//            throw new RuntimeException(Constant.ERR_SYS_P);
+//        }
         String key = "usr:"+userInfo.getUserId()+":"+busName;
-        String value = redisTemplate.opsForValue().get(key);
+        String value = timedCache.get(key,false);
         if (StrUtil.isEmpty(value)) {
-            redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.SECONDS);
+            timedCache.put(key, "1");
         }else{
-            redisTemplate.opsForValue().set(key,(Integer.parseInt(value)+1)+"",10,TimeUnit.SECONDS);
+            timedCache.put(key,(Integer.parseInt(value)+1)+"");
             throw new RuntimeException(Constant.ERR_SYS_P);
         }
     }
