@@ -76,6 +76,8 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 "/js/**",
                 "/npm/**",
                 "/favicon.ico",
+                "/hz/**",
+                "/av/**",
                 "/package-lock.json"
         };
         http.authorizeRequests()

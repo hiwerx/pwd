@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lq.pwd.mapper.HzMapper">
+
+
+    <insert id="insertHz" parameterType="java.util.Map" useGeneratedKeys="true" >
+        insert into hz(
+        hid
+        <if test="save!=null and save != ''">,save</if>
+        <if test="love!=null and love != ''">,love</if>
+        ) values (
+        #{hid}
+        <if test="save!=null and save != ''">,#{save}</if>
+        <if test="love!=null and love != ''">,#{love}</if>
+        );
+
+    </insert>
+
+    <select id="selectHz" resultType="com.alibaba.fastjson.JSONObject" parameterType="java.util.Map">
+        select * from hz
+        <where>
+            <if test="hid!=null and hid!=''">
+                hid = #{hid}
+            </if>
+            <if test="save!=null and save!=''">
+                and save = #{save}
+            </if>
+            <if test="starthid!=null and starthid!='' and endhid!=null and endhid!=''">
+                and hid &gt;=#{starthid} and hid &lt;=#{endhid}
+            </if>
+        </where>
+    </select>
+    <select id="selectHzOrderByTime" resultType="java.util.Map"
+            parameterType="java.util.Map">
+        select * from hz
+        <where>
+            <if test="likeId!=null and likeId!=''">
+                hid like #{likeId}
+            </if>
+            <choose>
+            <!--字符串注意 'love=="2"'  "love==2.toString()"-->
+                <when test="love!=null and love==2">
+                    and love = '2'
+                </when>
+                <otherwise>
+                    and love != '2'
+                </otherwise>
+            </choose>
+        </where>
+        order by update_time desc
+        <!-- 0比较会忽略 -->
+        <if test="(startNum!=null and startNum!='' or startNum==0) and pageSize!=null and pageSize!=''">
+            limit  #{startNum}, #{pageSize}
+        </if>
+
+    </select>
+
+    <update id="updateHz" parameterType="java.util.Map">
+        update hz
+        <set>
+            <if test="hid!=null and hid!=''">
+                hid = #{hid},
+            </if>
+            <if test="save!=null and save!=''">
+                save = #{save},
+            </if>
+            <if test="love!=null and love!=''">
+                love = #{love},
+            </if>
+<!--            <if test="hid!=null and (hid=='pc' or hid=='mb')">-->
+<!--                update_time = null,-->
+<!--            </if>-->
+        </set>
+          <where>
+              <if test="hid!=null and hid!=''">
+                  hid = #{hid}
+              </if>
+              <if test="id!=null and id!=''">
+                  and id = #{id}
+              </if>
+    </where>
+    </update>
+
+</mapper>
