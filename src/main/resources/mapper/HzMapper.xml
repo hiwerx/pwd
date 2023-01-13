@@ -27,6 +27,7 @@
             </if>
             <if test="starthid!=null and starthid!='' and endhid!=null and endhid!=''">
                 and hid &gt;=#{starthid} and hid &lt;=#{endhid}
+                and love != '2'
             </if>
         </where>
     </select>
